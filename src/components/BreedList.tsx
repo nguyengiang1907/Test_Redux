@@ -1,9 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
+import { fetchBreeds } from '../api/dogApi';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { setData } from '../features/breedsSlice';
+import { useNavigate } from 'react-router-dom';
+
 
 const BreedList: React.FC = () => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const breeds = useSelector((state: any) => state.breeds.breeds);
+
+
+  const loadBreeds = async () => {
+    const data = await fetchBreeds(navigate); 
+    dispatch(setData(data));
+    if (navigator.onLine) {
+      localStorage.setItem('breeds', JSON.stringify(data));
+    }
+  };
+
+  useEffect(() => {
+    loadBreeds();
+  }, []);
 
   const [currentPage, setCurrentPage] = useState(1);
   const recordsPerPage = 5;
@@ -23,6 +43,7 @@ const BreedList: React.FC = () => {
 
   return (
     <div style={{ width: '90%', height: '100%' }}>
+     {/* <LoadingBar progress={progress} /> */}
       <table
         className="table table-bordered border-primary"
         style={{ marginTop: '5rem', marginLeft: '5%', marginRight: '5%' }}
